@@ -1,0 +1,8 @@
+db.sqlite3
+*.pyc
+*.pyc
+*.pyc
+*.pyc
+*.pyc
+geckodriver.log
+*.log
