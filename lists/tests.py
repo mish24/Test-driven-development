@@ -4,6 +4,8 @@ from lists.views import home_page
 from django.http import HttpResponse, HttpRequest
 from django.template.loader import render_to_string
 
+from lists.models import Item
+
 class HomePageTest(TestCase):
 	
 	def test_root_url_resolves_to_home_page_view(self):
@@ -40,3 +42,19 @@ class HomePageTest(TestCase):
 		#we are giving the variable new_item_list whose value is expected to ne the text, the first parameter is the html which is to be manually rendered and compared to the html the view returns
 		expected_html = render_to_string('home.html', {'new_item_text': 'A new list item'})
 		self.assertEqual(response.content.decode(), expected_html)
+
+#next we test hte models
+class ItemModelTest(TestCase):
+
+	def test_saving_and_retrieving_items(self):
+		first_item = Item()
+		#we create an object of the item
+		first_item.text = 'The first (ever) list item'
+		first_item.save()
+		#we save the object
+	
+		saved_items = Item.objects.all()
+		self.assertEqual(saved_items.count(), 1)
+	
+		first_saved_item = saved_items[0]
+		self.assertEqual(first_saved_item.text, 'The first (ever) list item')
