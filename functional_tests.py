@@ -1,6 +1,7 @@
 #to check from the point of view of a user
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import time
 import unittest
 
 class NewVisitorTest(unittest.TestCase):
@@ -30,15 +31,24 @@ class NewVisitorTest(unittest.TestCase):
 		#when you hit tinter, only then the page updates
 		inputbox.send_keys(Keys.ENTER)
 		
+		
 		#next we move to the next element, which tells us about the table
 		#remember, sometimes we need to just find the element, other times we need to access whats inside that specific id
 		table = self.browser.find_element_by_id('id_list_table')
 		rows = table.find_elements_by_tag_name('tr')
 		#we add the second argument as the error message
-		self.assertTrue(any(row.text == '1. Get GSoC' for row in rows), "New item did  not appear in the table")
-		
+		self.assertIn('1: Buy peacock feathers', [row.text for row in rows])
 		#there is still a text box inviting you to add another item. 
 		#for later
+		inputbox = self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('Please get gsoc')
+		inputbox.send_keys(Keys.ENTER)
+
+		table = self.browser.find_element_by_id('id_list_table')
+		rows = table.find_element_by_tag_name('tr')
+		self.assertIn('1: Buy peacock feathers', [row.text for row in rows])
+		self.assertIn('2: Use peacock feathers to make a fly', [row.text for row in rows])
+		
 		
 		
 		

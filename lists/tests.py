@@ -28,4 +28,15 @@ class HomePageTest(TestCase):
 
 #now that one class test works, lets create one more test to see whether the right template is rendered or not
 
-
+	def test_home_page_can_save_a_POST_request(self):
+		request = HttpRequest()
+		request.method = 'POST'
+		request.POST['item_text'] = 'A new list item'
+		#this actually calls the function under test
+		#to pass this test, we just need to add a request.post thing in the view. nothing else
+		response = home_page(request)
+		
+		self.assertIn('A new list item', response.content.decode())
+		#we are giving the variable new_item_list whose value is expected to ne the text, the first parameter is the html which is to be manually rendered and compared to the html the view returns
+		expected_html = render_to_string('home.html', {'new_item_text': 'A new list item'})
+		self.assertEqual(response.content.decode(), expected_html)
