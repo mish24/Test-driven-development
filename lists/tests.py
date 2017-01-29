@@ -24,6 +24,7 @@ class HomePageTest(TestCase):
 		response = home_page(request)
 		expected_html = render_to_string('home.html')
 		self.assertEqual(response.content.decode(), expected_html)
+		#decode converts response.content into the unicode string, which allows us to compare string with strings. 
 
 #now that one class test works, lets create one more test to see whether the right template is rendered or not
 
