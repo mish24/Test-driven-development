@@ -29,19 +29,43 @@ class HomePageTest(TestCase):
 		#decode converts response.content into the unicode string, which allows us to compare string with strings. 
 
 #now that one class test works, lets create one more test to see whether the right template is rendered or not
-
-	def test_home_page_can_save_a_POST_request(self):
+	def test_home_page_can_save_a_post_request(self):
 		request = HttpRequest()
 		request.method = 'POST'
 		request.POST['item_text'] = 'A new list item'
-		#this actually calls the function under test
-		#to pass this test, we just need to add a request.post thing in the view. nothing else
+		
 		response = home_page(request)
 		
-		self.assertIn('A new list item', response.content.decode())
-		#we are giving the variable new_item_list whose value is expected to ne the text, the first parameter is the html which is to be manually rendered and compared to the html the view returns
-		expected_html = render_to_string('home.html', {'new_item_text': 'A new list item'})
-		self.assertEqual(response.content.decode(), expected_html)
+		self.assertEqual(Item.objects.count(), 1)
+		new_item = Item.objects.first()
+		# objects.first() is the same as objects.all()[0]
+		self.assertEqual(new_item.text, 'A new list item')
+		
+	def test_home_page_redirects_after_post(self):
+		request = HttpRequest()
+		request.method = 'POST'
+		request.POST['item_text'] = 'A new list item'
+		
+		response = home_page(request)
+		
+		self.assertEqual(response.status_code, 302)
+		self.assertEqual(response['location'] , '/')
+		
+	def test_home_page_only_saves_non_empty(self):
+		request = HttpRequest()
+		home_page(request)
+		self.assertEqual(Item.objects.count(), 0)
+		
+	def test_home_page_displays_all_list_items(self):
+		Item.objects.create(text='item 1')
+		Item.objects.create(text='item 2')
+		
+		request = HttpRequest()
+		response = home_page(request)
+		
+		self.assertIn('item 1', response.content.decode())
+		self.assertIn('item 2', response.content.decode())
+
 
 #next we test hte models
 class ItemModelTest(TestCase):

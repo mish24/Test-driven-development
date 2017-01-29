@@ -1,8 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from lists.models import Item
 
 # Create your views here.
 # to pass the test, we add a if statement providing a different code path for the post request.
 def home_page(request):
-	return render(request, 'home.html', {'new_item_text': request.POST.get('item_text', ''),})
-	#this will give an unexpexted failure, we broke the code path where there is no post request. 
+	if request.method == 'POST':
+		Item.objects.create(text = request.POST['item_text'])
+		return redirect('/')
+		
+	items = Item.objects.all()
+	context = {'items': items,}
+	
+	return render(request, 'home.html', context)
