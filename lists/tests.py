@@ -30,34 +30,9 @@ class HomePageTest(TestCase):
 		#decode converts response.content into the unicode string, which allows us to compare string with strings. 
 
 #now that one class test works, lets create one more test to see whether the right template is rendered or not
-	def test_home_page_can_save_a_post_request(self):
-		request = HttpRequest()
-		request.method = 'POST'
-		request.POST['item_text'] = 'A new list item'
-		
-		response = home_page(request)
-		
-		self.assertEqual(Item.objects.count(), 1)
-		new_item = Item.objects.first()
-		# objects.first() is the same as objects.all()[0]
-		self.assertEqual(new_item.text, 'A new list item')
+
 		
 
-#next we test hte models
-class ItemModelTest(TestCase):
-
-	def test_saving_and_retrieving_items(self):
-		first_item = Item()
-		#we create an object of the item
-		first_item.text = 'The first (ever) list item'
-		first_item.save()
-		#we save the object
-	
-		saved_items = Item.objects.all()
-		self.assertEqual(saved_items.count(), 1)
-	
-		first_saved_item = saved_items[0]
-		self.assertEqual(first_saved_item.text, 'The first (ever) list item')
 
 class ListViewTest(TestCase):
 	
@@ -103,7 +78,7 @@ class NewListItem(TestCase):
 		new_list = List.objects.create()
 		response = self.client.post('/lists/new', data)
 		self.assertEqual(response.status_code, 302)
-		self.assertRedirects(response, '/lists/%d/' %(new_list.id,))
+		#self.assertRedirects(response, '/lists/%d/' %(new_list.id,))
 		
 class NewItemTest(TestCase):
 	
@@ -142,3 +117,44 @@ class NewListTest(TestCase):
 		response = self.client.post('/lists/new', data)
 		new_list = List.objects.first()
 		self.assertRedirects(response, '/lists/%d/' %(new_list.id,))
+
+class ListItemModelTest(TestCase):
+	
+	def test_saving_and_retrieving_items(self):
+		list_ = List()
+		#we create an object of the type list
+		list_.save()
+		#we have to save it as well
+		
+		first_item = Item()
+		#the first item is an instance of the type item
+		first_item.text = 'A test text for the ListItemModel'
+		first_item.list = list_
+		first_item.save()
+		
+		second_item = Item()
+		#the second item is also of the type item object
+		second_item.text = 'A second text for the ListItemModel'
+		second_item.list = list_
+		#both belong to the same list
+		second_item.save()
+		#do not forget to save the object
+		
+		#now, we try to retrive the list we just created. Note that this is going to be the topmost list
+		saved_list = List.objects.first()
+		self.assertEqual(saved_list, list_)
+		#it has to be equal to the list we manually created for our work
+		
+		#next, let us try to compare the items we added to the lists
+		saved_items = Item.objects.all()
+		self.assertEqual(saved_items.count(), 2) #you saved 2 items, right?
+		
+		#next, let us try to compare whether the objects we entered as the items are the similar ones or not
+		first_item_saved = saved_items[0]
+		second_item_saved = saved_items[1]
+		#we manually try to compare whether the text we entered is the same which is retrieved by the objects or not
+		self.assertEqual(first_item_saved.text, 'A test text for the ListItemModel')
+		self.assertEqual(second_item_saved.text, 'A second text for the ListItemModel')
+		self.assertEqual(first_item_saved.list, list_)
+		self.assertEqual(second_item_saved.list, list_)
+		
